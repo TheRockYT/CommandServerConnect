@@ -11,6 +11,7 @@ class CommandServerConnect : Plugin() {
         var config: Config? = null
         var updater: Updater? = null
         var version: String? = null
+        var instance: CommandServerConnect? = null
 
         fun replacePlaceholder(obj: Any?): String? {
             var finalString: String? = null
@@ -47,24 +48,17 @@ class CommandServerConnect : Plugin() {
 
         val cm: CommandSender = ProxyServer.getInstance().console
         cm.sendMessage("§aLoading §bCommandServerConnect...")
+        instance = this
         config = Config(File(dataFolder, "config.yml"))
         version = description.version
         reload()
-        ProxyServer.getInstance().pluginManager.registerCommand(this, CommandServerConnectCommand("CommandServerConnect"))
-        for(str in config!!.getValues("connect")!!){
-            val display: String? = config!!.getString("connect."+str+".display")
-            val cmd: String? = config!!.getString("connect."+str+".cmd")
-            val server: String? = config!!.getString("connect."+str+".server")
-            val permission: String? = config!!.getString("connect."+str+".permission")
-            for(str2 in cmd!!.split(";")){
 
-                ProxyServer.getInstance().pluginManager.registerCommand(this, ServerConnectionCommand(str2, display!!, server!!, permission))
-            }
-        }
         cm.sendMessage("§bCommandServerConnect §aloaded.")
         cm.sendMessage("§eThanks for using §bCommandServerConnect")
     }
     fun reload() {
+        ProxyServer.getInstance().pluginManager.unregisterCommands(this)
+
         val ex: Boolean = config?.file?.exists() == true
         config?.load()
         config?.set("info", "CommandServerConnect v$version by TheRockYT.")
@@ -79,13 +73,22 @@ class CommandServerConnect : Plugin() {
             config?.set("connect.lobby.display", "Lobby");
         }
         config?.add("permission.updates", "CommandServerConnect.version")
+
+        config?.add("permission.reload", "CommandServerConnect.reload")
+
         config?.add("messages.info", "&bCommandServerConnect &6> &bCommandServerConnect &aby TheRockYT")
+
         config?.add("messages.permission", "&bCommandServerConnect &6> &cYou need the permission \"%permission%\".")
-        config?.add("messages.help", "&bCommandServerConnect &6> &cUse \"CommandServerConnect version\" to check for updates.")
+        val help: ArrayList<String> = ArrayList()
+        help.add("&bCommandServerConnect &6> &cUse \"CommandServerConnect version\" to check for updates.")
+        help.add("&bCommandServerConnect &6> &cUse \"CommandServerConnect reload\" to reload the config.")
+        config?.add("messages.help", help)
         config?.add("messages.connecting", "&bCommandServerConnect &6> &aConnecting you to \"%server%\".")
         config?.add("messages.connected", "&bCommandServerConnect &6> &cYou are already on this server.")
         config?.add("messages.not_exist", "&bCommandServerConnect &6> &cThis server does not exist.")
         config?.add("messages.console", "&bCommandServerConnect &6> &cYou need to be a player.")
+        config?.add("messages.reload_start", "&bCommandServerConnect &6> &aReloading &bCommandServerConnect...")
+        config?.add("messages.reload_end", "&bCommandServerConnect &6> &bCommandServerConnect &awas loaded.")
         val development_outdated = ArrayList<String>()
         development_outdated.add("&bCommandServerConnect &6> &cYou are using an &4outdated &bdevelopment &cversion of &bCommandServerConnect&c. &4Your version: v%version%. &aLatest release: v%latest%. &bLatest development: v%development%.")
         development_outdated.add("&bCommandServerConnect &6> &aDownload the latest version at https://therockyt.github.io")
@@ -111,7 +114,18 @@ class CommandServerConnect : Plugin() {
         updater = version?.let { Updater(it, "https://therockyt.github.io/CommandServerConnect/versions.json", this) }
         updater?.check()
         updater?.runUpdater()
+        ProxyServer.getInstance().pluginManager.registerCommand(this, CommandServerConnectCommand("CommandServerConnect"))
+        ProxyServer.getInstance().pluginManager.registerCommand(this, CommandServerConnectCommand("csc"))
+        for(str in config!!.getValues("connect")!!){
+            val display: String? = config!!.getString("connect."+str+".display")
+            val cmd: String? = config!!.getString("connect."+str+".cmd")
+            val server: String? = config!!.getString("connect."+str+".server")
+            val permission: String? = config!!.getString("connect."+str+".permission")
+            for(str2 in cmd!!.split(";")){
 
+                ProxyServer.getInstance().pluginManager.registerCommand(this, ServerConnectionCommand(str2, display!!, server!!, permission))
+            }
+        }
     }
     override fun onDisable() {
         // Plugin shutdown logic

@@ -23,6 +23,16 @@ class CommandServerConnectCommand(name: String?) : Command(name) {
             }else{
                 sender.sendMessage(CommandServerConnect.replacePlaceholder(CommandServerConnect.config?.get("messages.permission"))?.replace("%permission%", perm!!))
             }
+        }else if(args[0].equals("reload", true)){
+            val perm: String? = CommandServerConnect.config?.getString("permission.reload")
+            if(sender!!.hasPermission(perm)){
+                sender.sendMessage(CommandServerConnect.replacePlaceholder(CommandServerConnect.config?.get("messages.reload_start")))
+                CommandServerConnect.instance?.reload()
+                sender.sendMessage(CommandServerConnect.replacePlaceholder(CommandServerConnect.config?.get("messages.reload_end")))
+
+            }else{
+                sender.sendMessage(CommandServerConnect.replacePlaceholder(CommandServerConnect.config?.get("messages.permission"))?.replace("%permission%", perm!!))
+            }
         }else{
             sender!!.sendMessage(CommandServerConnect.replacePlaceholder(CommandServerConnect.config?.get("messages.help")))
 
