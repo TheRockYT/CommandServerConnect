@@ -13,7 +13,6 @@ class ServerConnectionCommand(name: String?, private val display: String, privat
         if (sender != null) {
             if(sender is ProxiedPlayer){
                 if(perm == null || sender.hasPermission(perm)){
-                    sender.sendMessage(CommandServerConnect.replacePlaceholder(CommandServerConnect.config?.get("messages.connecting"))?.replace("%server%", display))
                     if(sender.server.info.name.equals(server, true)){
                         sender.sendMessage(CommandServerConnect.replacePlaceholder(CommandServerConnect.config?.get("messages.connected"))?.replace("%server%", display))
 
