@@ -1,0 +1,4 @@
+name: CommandServerConnect
+version: '${project.version}'
+main: TheRockYT.CommandServerConnect.CommandServerConnect
+description: therockyt.github.io
